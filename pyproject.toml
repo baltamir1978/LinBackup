@@ -1,0 +1,15 @@
+# No se instala con pip: el paquete irá en un .deb. Este fichero sólo configura las
+# herramientas de desarrollo.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "imagenes: prueba sobre imágenes de disco de verdad (exFAT…); sólo en el Mac, con hdiutil",
+]
+
+[tool.mypy]
+python_version = "3.13"     # el de Debian 13
+packages = ["linbackup"]
+strict = true
+warn_unused_ignores = true
