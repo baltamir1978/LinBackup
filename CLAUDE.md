@@ -58,8 +58,24 @@ Los principios que no se negocian:
 - **El driver de exFAT del kernel** también ignora mayúsculas, como el de macOS, así que lo de
   «cambiar sólo las mayúsculas» funciona igual.
 
-## Pendiente de preguntar a Bruno
+## El mismo SSD para el Mac y para Linux (Bruno, 21-oct-2026)
 
-- **¿El mismo SSD se usará desde el Mac y desde Linux?** Si es así, la estructura del disco
-  (`_Retirados`, temporales y la configuración que se guarde en él) tiene que ser compatible con la
-  de BackupSSD.
+Bruno quiere poder usar el mismo disco con BackupSSD en el Mac y con LinBackup en Linux. Lo que
+eso exige:
+
+- **Cada equipo escribe en su propia carpeta raíz del disco.** BackupSSD guarda todo bajo
+  `rootFolder` (por omisión `Backup-SSD`). Si los dos equipos usaran la misma raíz, cada uno
+  apartaría a `_Retirados` lo que hubiera puesto el otro, porque no lo tiene en su lado. LinBackup
+  usa otra por omisión (p. ej. `Backup-Debian`) y **se niega a usar una raíz que tenga pinta de
+  ser de otro equipo**. Para saberlo hace falta una marca en la raíz con el equipo que la creó, y
+  BackupSSD hoy no la deja: añadirla también allí, o al menos detectar una raíz con contenido y sin
+  marca, y preguntar.
+- **La misma forma dentro de la raíz**: `<raíz>/<carpeta>/…`, `_Retirados/AAAA-MM-DD/` con la ruta
+  conservada, temporales `.bssd-parcial`. Así el disco se lee igual desde cualquiera de los dos.
+- **La configuración no va en el disco**: BackupSSD la guarda en `~/.config/backup-ssd/config.json`,
+  un perfil por disco con su `volumeUUID`. Usar el mismo formato JSON y la misma ruta, para poder
+  copiar el perfil de un equipo a otro.
+- **Normalización Unicode de los nombres**: el Mac suele escribir los nombres descompuestos (NFD,
+  «cancio´n») y Linux compuestos (NFC, «canción»). Para exFAT son nombres distintos. BackupSSD no lo
+  trata (no hay rastro de NFC/NFD en su código). Comparar siempre en NFC, igual que se compara sin
+  mayúsculas, o los nombres con tilde se retirarán y se volverán a copiar en cada pasada.
