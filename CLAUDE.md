@@ -111,10 +111,10 @@ eso exige:
   apartaría a `_Retirados` lo que hubiera puesto el otro, porque no lo tiene en su lado. LinBackup
   usa `Backup-Linux` por omisión y **se niega a usar una raíz con cosas que no lleve su marca**
   (`.linbackup-raiz.json`, con el `machine-id` del equipo; `rootmark.py`). `--adoptar` la marca a
-  mano si de verdad es la de este equipo. **BackupSSD no deja marca**: su `Backup-SSD` queda
-  protegida porque LinBackup no la toca, pero BackupSSD no sabría negarse a escribir en
-  `Backup-Linux` si alguien le pusiera esa raíz. Añadirle la marca está pendiente de que Bruno lo
-  pida.
+  mano si de verdad es la de este equipo. **BackupSSD deja también la suya**
+  (`.backupssd-raiz.json`, mismas claves, desde octubre de 2026) y se niega a copiar en una raíz
+  marcada por LinBackup; LinBackup no toca nunca una con la marca del Mac, ni con `--adoptar`.
+  Una raíz del Mac de antes de la marca la adopta BackupSSD en su próxima pasada.
 - **La misma forma dentro de la raíz**: `<raíz>/<carpeta>/…`, `_Retirados/AAAA-MM-DD/` con la ruta
   conservada, temporales `.bssd-parcial`. Así el disco se lee igual desde cualquiera de los dos.
 - **La configuración no va en el disco**: LinBackup la guarda en `~/.config/linbackup/config.json`

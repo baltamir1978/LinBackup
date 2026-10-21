@@ -198,3 +198,15 @@ def test_adoptar_una_raiz(tmp_path: Path) -> None:
     (root / "algo").write_text("x")
     rootmark.check(root, dry_run=False, adopt=True)
     rootmark.check(root, dry_run=False)           # ya es de este equipo
+
+
+def test_raiz_marcada_por_backupssd(tmp_path: Path) -> None:
+    # La marca que deja BackupSSD en el Mac. Ni con --adoptar se toca.
+    root = tmp_path / "Backup-SSD"
+    root.mkdir()
+    (root / rootmark.BACKUPSSD_MARK_FILE).write_text(json.dumps(
+        {"app": "BackupSSD", "equipo": "MacBook de Bruno", "machine_id": "X", "creada": "…"}))
+    for adopt in (False, True):
+        with pytest.raises(ForeignRoot, match="MacBook de Bruno"):
+            rootmark.check(root, dry_run=False, adopt=adopt)
+    assert rootmark.read_mark(root) is None

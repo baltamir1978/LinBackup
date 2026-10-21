@@ -4,7 +4,8 @@ El mismo SSD se usa con BackupSSD en el Mac y con LinBackup en Linux (Bruno, 21-
 Si los dos escribieran en la misma raíz, cada uno apartaría a `_Retirados` lo que puso el
 otro, porque no lo tiene en su lado. Así que cada equipo tiene la suya, y LinBackup **se
 niega** a usar una raíz que no lleve su marca y no esté vacía: casi seguro que es la de
-otro equipo. BackupSSD no deja marca, así que su `Backup-SSD` cae en ese caso.
+otro equipo. BackupSSD deja la suya (`.backupssd-raiz.json`) desde octubre de 2026; una
+`Backup-SSD` de antes no la lleva, y cae en el caso de «con cosas y sin marca».
 """
 
 import json
@@ -18,6 +19,8 @@ from .report import ForeignRoot
 
 MARK_FILE = ".linbackup-raiz.json"
 APP = "LinBackup"
+# La que deja BackupSSD en la suya desde octubre de 2026 (mismas claves).
+BACKUPSSD_MARK_FILE = ".backupssd-raiz.json"
 
 
 def machine_id() -> str:
@@ -33,9 +36,9 @@ def machine_id() -> str:
     return f"host:{socket.gethostname()}"
 
 
-def read_mark(root: Path) -> dict[str, Any] | None:
+def read_mark(root: Path, file: str = MARK_FILE) -> dict[str, Any] | None:
     try:
-        data = json.loads((root / MARK_FILE).read_text(encoding="utf-8"))
+        data = json.loads((root / file).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
     return data if isinstance(data, dict) else None
@@ -70,6 +73,12 @@ def check(root: Path, dry_run: bool, adopt: bool = False) -> None:
         if not dry_run:
             write_mark(root)
         return
+    mac = read_mark(root, BACKUPSSD_MARK_FILE)
+    if mac is not None:
+        # La del Mac no se adopta nunca, ni con --adoptar: es de otro equipo seguro.
+        raise ForeignRoot(
+            f"La carpeta «{root.name}» del disco es la de BackupSSD, del Mac "
+            f"{mac.get('equipo', '?')}. Cada equipo necesita la suya: elige otra carpeta raíz.")
     mark = read_mark(root)
     if mark is not None and mark.get("app") == APP and mark.get("machine_id") == machine_id():
         return
